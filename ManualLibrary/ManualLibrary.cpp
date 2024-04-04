@@ -73,12 +73,12 @@ FARPROC util::GetProcAddress(PVOID hModule, LPCSTR str)
 		const char* name = reinterpret_cast<const char*>(reinterpret_cast<DWORD_PTR>(hModule) + nameTable[i]);
 		if (strcmp(str, name) == 0)
 		{
-			DWORD* functionTable = reinterpret_cast<DWORD*>(hModuleBase + ExportDirectory->AddressOfFunctions);
-			WORD* ordinalTable = reinterpret_cast<WORD*>(hModuleBase + ExportDirectory->AddressOfNameOrdinals);
-			DWORD* ordinalBase = reinterpret_cast<DWORD*>(hModuleBase + ExportDirectory->Base);
+			std::cout << "Found " << name << '\n';
+			const auto lpCurrentOridnal = (reinterpret_cast<WORD*>(ExportDirectory->AddressOfNameOrdinals + hModuleBase))[i];
+			const auto addRVA = (reinterpret_cast<DWORD*>(hModuleBase + ExportDirectory->AddressOfFunctions))[lpCurrentOridnal];
 			//std::cout << ordinalBase << std::endl;
 
-			return reinterpret_cast<FARPROC>(functionTable[ordinalTable[i] - (*ordinalBase - 1)] + reinterpret_cast<DWORD_PTR>(hModule));
+			return reinterpret_cast<FARPROC>(hModuleBase + addRVA);
 		}
 	}
 	return nullptr;
